@@ -5,6 +5,7 @@
 
 ## 使用サービス
 - 画像認識：Docomo Developers Support（https://dev.smt.docomo.ne.jp/）
+
 　他にも面白そうなAPIいろいろあるから楽しい
 
 
