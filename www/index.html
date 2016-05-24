@@ -1,0 +1,478 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+
+    <script type="text/javascript" src="components/loader.js"></script>
+    <script src="js/jquery-2.2.0.min.js"></script>
+   
+    <script src="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">  
+   <link rel="stylesheet" href="https://code.getmdl.io/1.1.0/material.yellow-blue.min.css" />
+   <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/font-awesome.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+<!--
+    <script src="js/material.js"></script>
+    <script src="js/material.min.js"></script>
+    <link rel="stylesheet" href="css/material.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+-->
+
+    <script>
+        ons.bootstrap();
+        var jsonData;
+        var imagDataStock;
+        var category;
+        // // 準備のイベントリスナー
+        // document.addEventListener ("deviceready", onDeviceReady, false);
+        // //PhoneGapの読み込みが完了した時に実行される関数
+        // function onDeviceReady () {
+        //     window.alert ('PhoneGapの読み込みが完了し、Cameraを使う準備が整いました');
+        // }
+
+        // カメラ撮影する
+        function recogPic(proc_type,category_temp) {
+           
+            /*撮影タイプの設定*/
+            if(proc_type == 0){
+                sourceTypeCode = navigator.camera.PictureSourceType.CAMERA
+            }else{
+                sourceTypeCode = navigator.camera.PictureSourceType.PHOTOLIBRARY
+            }
+            
+            /* カテゴリの設定
+            product-all：全カテゴリの商品（書籍、DVD、CD、PCソフト、ゲームソフト、食品パッケージ） 
+            book：市販されている書籍の表紙の認識が可能。
+            cd：市販されているCDのジャケットの認識が可能。
+            dvd：市販されているDVDのジャケットの認識が可能。
+            game：市販されているTVゲームソフトのパッケージの認識が可能。
+            software：市販されているPCソフトのパッケージの認識が可能。
+            food：パッケージラベルのついた市販の食品や飲料の画像認識が可能。 
+            (例 : インスタントラーメン、ペットボトル、缶など)。 
+            */
+            switch( category_temp ) {
+        		case "product-all" :
+                    category = "product-all";
+        			break;
+        		case "book" :
+                    category = "book";
+                    break;
+            	case "cd" :
+                    category = "cd";
+                    break;
+            	case "dvd" :
+                    category = "dvd";
+                    break;
+            	case "game" :
+                    category = "game";
+                    break;
+            	case "software" :
+                    category = "software";
+                    break;
+        		default : 
+        	}
+            
+            navigator.camera.getPicture(onSuccess, onFail, {
+                // オプション設定
+                // TODO:転送速度に応じて調整
+                quality : 50,//値が低いほど画質が落ちる（1 - 100）
+                destinationType: Camera.DestinationType.DATA_URL,//base64encodeを指定
+                sourceType: sourceTypeCode,
+                // targetWidth: 100,//取得する画像の横幅
+                // targetHeight: 100,//取得する画像ん高さ                    
+                // allowEdit: true, // 正方形にトリミングするかどうか
+                encodingType: Camera.EncodingType.JPEG, // 形式（JPEG or PNG）
+                correctOrientation: true // 撮影時と同じ向きに写真を回転
+                // saveToPhotoAlbum: false // 撮影後、端末のアルバムに画像を保存
+            });
+        }
+        
+        // 撮影成功時に呼ばれるコールバック
+        function onSuccess(imageData){
+            imageDataStock = imageData;
+            // 写真データがあれば挿入
+            if(typeof(imageData) != 'undefined' && imageData != '') {	
+                // 挿入
+                // $('.image').html('<img src="data:image/jpeg;base64,' + imageData + '" width="auto">');
+            }
+            
+            // 商品認識APIに画像を送る（形式：jpeg/base64）
+            sendApi(imageData);   
+        }
+        
+        // 撮影失敗時／カメラからバックした場合に呼ばれるメソッド
+        function onFail(){
+            window.alert ('fail or cancel');    
+        }
+            	
+        function upload(){
+            
+        }
+        
+        function sendApi(imageData){
+            var options = {
+                animation: 'slide', // アニメーションの種類
+                onTransitionEnd: function() {
+                    // showData();            
+                    $('.imageStock').html('<img src="data:image/jpeg;base64,' + imageDataStock + '" width="100%">');
+                    
+                } // アニメーションが完了した際によばれるコールバック
+            };
+            myNavigator.pushPage('pict_result.html',options);
+
+            // Base64からバイナリへ変換
+            var bin = atob(imageData.replace(/^.*,/, ''));
+            var buffer = new Uint8Array(bin.length);
+            for (var i = 0; i < bin.length; i++) {
+                buffer[i] = bin.charCodeAt(i);
+            }
+            // Blobを作成
+            var blob = new Blob([buffer.buffer], {type: 'image/jpeg'});
+            
+            $(document).ready(function () {
+                var params = {
+                  'APIKEY': '615172313659503136424545505239334147767a6864764863686f595233366c35396141656e4b49416837',
+                  'recog': category,
+                  // 'recog': 'book',
+                  'numOfCandidates':'3'
+                };
+
+                $.ajax({
+                    scriptCharset: 'utf-8',    
+                    url: 'https://api.apigw.smt.docomo.ne.jp/imageRecognition/v1/recognize?'+ $.param(params),
+                    type: 'POST',
+                    contentType:'application/octet-stream',
+                    processData:false,
+                    data:blob,
+                    success: function (data) {
+                        // alert(JSON.stringify(data.candidates[0].sites[0].title));
+
+                        // jQuery.each(data.candidates, function(key, val){
+                        //     if(key==0){
+                        //         alert("key=" + key + ",val=" + val.sites.title);
+                        //     }
+                        // });                        
+                        
+                        jsonData=data;
+                        showData();
+                        // var options = {
+                        //     animation: 'slide', // アニメーションの種類
+                        //     onTransitionEnd: function() {
+                        //         showData();
+                        //     } // アニメーションが完了した際によばれるコールバック
+                        // };
+                        // myNavigator.pushPage('pict_result.html',options);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert("error:" + jqXHR.status+"/"+textStatus+"/"+errorThrown);
+                    },
+                    complete: function(jqXHR, textStatus, errorThrown) {
+                        // alert("compl:" + textStatus);
+                        
+                    }
+                });
+            });
+        }
+        function showData(){
+                // alert(JSON.stringify(jsonData));
+                // $('.imageStock').html('<img src="data:image/jpeg;base64,' + imageDataStock + '" width="100%">');
+                jQuery.each(jsonData.candidates, function(key, val){
+                    index = key +1
+                    // 第一候補だけ出力
+                    if(key == 0){
+                        // $('.result').append("第"+index+"候補："+val.sites[0].title+"<br><br>");
+                        $('.result').append(val.sites[0].title);
+                    }
+                });
+                // プログレスバーを消す
+                $('.loader').remove();
+                //show detailボタンを出す
+                $('.my-container').slideDown('slow');
+                // タイトル出力
+                $('.result').slideDown('slow'); 
+                canvasInit();
+        }
+        
+        function showDetail() {
+            var options = {
+                animation: 'slide', // アニメーションの種類
+                onTransitionEnd: function() {
+                    // $('.imageStockDetail').html('<img src="data:image/jpeg;base64,' + imageDataStock + '" width="100%" height="200px" overflow="hidden">');
+                    $('.imageStockDetail').html('<img src="data:image/jpeg;base64,' + imageDataStock + '" width="100%">');
+                    $('.result-detail-title').append(jsonData.candidates[0].sites[0].title);
+                    // $('.result-detail').append(JSON.stringify(jsonData));
+                } // アニメーションが完了した際によばれるコールバック
+            };
+            myNavigator.pushPage('pict_detail.html',options);
+        }
+        
+        function testPage(){
+            var options = {
+                animation: 'slide', // アニメーションの種類
+                onTransitionEnd: function() {
+                    canvasInit();
+                } // アニメーションが完了した際によばれるコールバック
+            };
+            myNavigator.pushPage('test.html',options);
+        }
+
+        function canvasInit(){
+            /**
+             * ざわ・・・メーカー
+             * @param {obj} cs: canvas object
+             * @param {number} zawaNum: 生成する「ざわ・・・」の数
+             * @param {boolean} isBordering: 縁取りするかどうか
+             *     黒文字の場合は白フチに、白文字の場合は黒フチに
+             * @param {boolean} isColorBlack: 黒文字にするかどうか（falseで白文字）
+             * @param {boolean} isRightFlow: 右から流れるようにするか
+             */
+            var zawaMaker = function(cs, zawaNum, isBordering, isColorBlack, isRightFlow ) {
+                var ctx      = cs.getContext('2d');
+                var csWidth  = cs.width;
+                var csHeight = cs.height;
+                var zawas    = [];
+            
+                /**
+                 * ランダムな整数を返す
+                 * @param max 最大値
+                 * @param min 最小値
+                 * @return min ~ max
+                 */
+                var getRandomInt = function(max, min) {
+                    return Math.floor(Math.random() * (max - min)) + min;
+                };
+            
+                /**
+                 * @constructor
+                 */
+                var ZawaZawa = function() {
+                    this.initialize();
+                };
+            
+                ZawaZawa.prototype = {
+                    initialize: function() {
+                        this.scale     = getRandomInt(10, 5) / 10; // 1 ~ 0.5の倍率
+                        this.width     = this.scale * 160;  // 元サイズを大体150pxくらいと規定
+                        this.height    = this.scale * 60;   // 元サイズを大体60pxくらいと規定
+                        this.moveX     = getRandomInt(csWidth  - this.width, 0);
+                        this.moveY     = getRandomInt(csHeight - this.height, 0);
+                        this.addMoveX  = this.scale * 8;  // 奥行きを出すために、小さい要素は移動量を少なくする
+                        this.alpha     = 1;
+                        
+                        /* 
+                        動作を安定させるためにここではダミーデータを用意
+                        実際にデータを取得させるためにはAzure MLのAPIへリクエスト送り、
+                        類似したクチコミ情報を取得する。
+                        →APIの仕様については別途記載のAPI仕様を参照
+                        */
+                        similarity = Math.floor( Math.random() * 99 + 1);//類似度 1 〜１００
+                        // window.alert (similarity); 
+                        nega_posi = Math.random();//高評価：true
+                        array_posi = ["最高です！！めっちゃオススメ！",
+                                    "評判通りのクオリティで大満足です。",
+                                    "及第点というところですかね。コスパは◎",
+                                    "あまり期待はしていなかったのですが、思っていたよりもだいぶ良品！",
+                                    "リピートで購入しました。飽きがこないので愛用しています。",
+                                    "周囲にも勧めたいほどの良品だと思います。",
+                                    "やっぱり定番ですね。安定感があります。",
+                                    "自信を持ってオススメできます。",
+                                    "まだ買ってない人とかいるの？",
+                                    "知人に勧められて購入。納得の一品でした。"];
+                        array_nega = ["期待ハズレでした。。。あまりオススメできません。",
+                                    "うーん、価格相応かな〜",
+                                    "産業廃棄物クラス、CD−Rを買ってフリスビーにしたほうがまだマシ",
+                                    "惜しい！場合によってはオススメです。",
+                                    "安かろう悪かろうですね、コスパ重視の方にはアリかなぁ",
+                                    "なんだろう、これを見てるとイライラする。。。",
+                                    "残念ながら私には合ってませんでした。",
+                                    "万人ウケはしないかなー。",
+                                    "正直買って損しました。"];
+                        
+                        this.fillStyle = "";
+                        // this.alpha = Math.random();
+                        if(nega_posi > 0.5){
+                            this.kuchikomi = array_posi[ Math.floor( Math.random() * array_posi.length ) ];//クチコミ                            
+                            this.fillStyle = "rgb(63, 81, 181)";
+                            // this.fillStyle = "rgb(240, 255, 255)";
+                        } else {
+                            this.kuchikomi = array_nega[ Math.floor( Math.random() * array_nega.length ) ];//クチコミ                            
+                            this.fillStyle = "rgb(255, 138, 128)";
+                            // this.fillStyle = "rgb(240, 255, 255)";
+                        }
+                        
+  
+                        // ユーザとの類似度に応じてフォントサイズを変更（高→フォント大）
+                        if (similarity >= 80){
+                            // ctx.font = "bold 60px 'ＭＳ Ｐゴシック'";
+                            // ctx.font = "bold 60px 'Meiryo'";
+                            this.font = "bold 100px 'Meiryo'";
+                        } else if (similarity < 80 && similarity >= 50) {
+                            // ctx.font = "bold 50px 'Meiryo'";
+                            this.font = "bold 70px 'Meiryo'";
+                        } else if (similarity < 50 && similarity >= 30) {
+                            // ctx.font = "bold 30px 'Meiryo'";
+                            this.font = "bold 50px 'Meiryo'";
+                        } else {
+                            // ctx.font = "bold 20px 'Meiryo'";
+                            this.font = "bold 30px 'Meiryo'";
+                        }
+                        
+                        
+                    },
+                    setStatus: function() {
+                        /* 変換マトリクスを初期化 */
+                        ctx.setTransform(1, 0, 0, 1, 0, 0);
+            
+                        ctx.scale(this.scale, this.scale);
+                        ctx.translate(this.moveX, this.moveY);
+                        ctx.globalAlpha = this.alpha;
+                        
+                        //
+                        ctx.font = this.font;
+                        ctx.fillText(this.kuchikomi, 10, 10);
+                        ctx.fillStyle = this.fillStyle;
+                        
+                    },
+                    update: function() {
+                        /* scaleで座標軸がズレているので、scaleした分を割った値をCanvasサイズとする */
+                        var _csWidth = csWidth / this.scale;
+                                                        ctx.font = this.font;
+                                ctx.fillText(this.kuchikomi, 10, 10);
+                                ctx.fillStyle = this.fillStyle;
+                        /* 流れる向きの条件分岐 */
+                        if (isRightFlow) {
+                            // if (this.moveX + this.width + 50 < 0 ) {
+                            if (this.moveX + this.width + 2000 < 0 ) {
+                                this.alpha = 0;
+                                this.moveX = _csWidth + this.width;
+            
+                                /* scaleを変えるため再設定 */
+                                this.scale    = getRandomInt(10, 5) / 10;
+                                this.width    = this.scale * 160;
+                                this.height   = this.scale * 60;
+                                this.moveY    = getRandomInt(csHeight - this.height, 0);
+                                this.addMoveX = this.scale * 15;
+
+                            } else {
+                                this.moveX -= this.addMoveX;
+                                this.alpha += 0.01;
+                            }
+                        } else {
+                            if (this.moveX >_csWidth) {
+                                this.alpha = 0;
+                                this.moveX = - this.width;
+            
+                                /* scaleを変えるため再設定 */
+                                this.scale    = getRandomInt(10, 5) / 10;
+                                this.width    = this.scale * 160;
+                                this.height   = this.scale * 60;
+                                this.moveY    = getRandomInt(csHeight - this.height, 0);
+                                this.addMoveX = this.scale * 5;
+                            } else {
+                                this.moveX += this.addMoveX;
+                                this.alpha += 0.01;
+                            }
+                        }
+            
+                        /* 透明度が1以上の場合は透明度の増加を止める */
+                        if (this.alpha > 1) {
+                            this.alpha = 1;
+                        }
+                    },
+                    draw: function() {
+                        /**
+                         * @param {number} width: 線の太さ
+                         * @param {string} color: 線の色
+                         */
+                        function createZawaPath(width, color) {
+                            ctx.lineWidth = width;
+                            ctx.strokeStyle = color;
+                            ctx.beginPath();
+                            ctx.lineCap = "round";
+                            ctx.lineJoin = "round";
+                                           
+                            ctx.closePath();
+                            ctx.stroke();
+                        }
+            
+                        /* 縁取と黒・白文字の条件分岐 */
+                        if (isBordering && isColorBlack) {
+                            createZawaPath(15, 'white');
+                            createZawaPath(6, 'black');
+                        }
+                        if (isBordering && !isColorBlack) {
+                            createZawaPath(15, 'black');
+                            createZawaPath(6, 'white');
+                        }
+                        if (!isBordering && isColorBlack) {
+                            createZawaPath(6, 'black');
+                        }
+                        if (!isBordering && !isColorBlack) {
+                            createZawaPath(6, 'white');
+                        }
+            
+                    },
+                    render: function() {
+                        this.setStatus();
+                        this.draw();
+                        this.update();
+                    }
+                };
+            
+            
+                /**
+                 * インスタンスの作成
+                 * @return zawas[instance, instance...];
+                 */
+                function createZawas(num) {
+                    var i = 0;
+                    for (; i < num; i++) {
+                        zawas[zawas.length] = new ZawaZawa();
+                    }
+                }
+            
+               /**
+                 * 描画
+                 */
+                function render() {
+                    var i = 0;
+                    var l = zawas.length;
+                    ctx.setTransform(1,0,0,1,0,0);
+                    ctx.clearRect(0, 0, csWidth, csHeight);
+                    for (; i < l; i++) {
+                        zawas[i].render();
+                    }
+                    requestAnimationFrame(render);
+                }
+            
+                /* 実行 */
+                createZawas(zawaNum);
+                render();
+            };
+            
+            var cs = document.getElementById('myCanvas');
+
+            /* args: canvasオブジェクト, コメントの数, 縁取りか, 黒文字か, 右から流すか */
+            zawaMaker(cs, 5, false, true, true);
+            
+          
+        }
+        
+        
+    </script>
+</head>
+<body>
+    <ons-navigator var="myNavigator" page="menu.html">
+    </ons-navigator> 
+        <div class="buttonGroup">
+            <button onclick="recogPic(0)" class="menuButton">カメラ起動</button>
+        	<button onclick="recogPic(1)" class="menuButton">アルバムから選択</button>
+        </div>
+</body>
+</html>

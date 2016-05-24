@@ -1,0 +1,311 @@
+@font-face {
+    font-family: 'roboto';
+    src: url('../fonts/robotoregular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'hima';
+    src: url('../fonts/hima.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'noto';
+    src: url('../fonts/hima.otf') format('opentype');
+}
+
+
+body {
+    font-family: 'roboto';
+}
+
+.title-bar {
+    font-size: 25px;
+    font-family: 'hima';
+}
+
+/* Material iconsを利用する */
+/* https://design.google.com/icons/ */
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;  /* 推奨サイズ */
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+  text-transform: none;
+  margin:0 auto;
+ 
+  /* WebKitブラウザサポート */
+  -webkit-font-smoothing: antialiased;
+  /* Chrome、Safariサポート */
+  text-rendering: optimizeLegibility;
+ 
+  /* Firefoxサポート */
+  -moz-osx-font-smoothing: grayscale;
+ 
+  /* IEサポート */
+  font-feature-settings: 'liga';
+}
+
+/* アイコンサイズ */
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
+.material-icons.md-60 { font-size: 60px; }
+.material-icons.md-80 { font-size: 100px; }
+
+/* 背景が明るいとき用のアイコン色 */
+.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+
+/* 背景が暗いとき用のアイコン色 */
+.material-icons.md-light { color: rgba(255, 255, 255, 1); }
+.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+
+.menuButton{
+    width:60%;
+/*    position: absolute;
+    left: 0;
+    right: 0;
+    top: 60%;*/
+    margin:4px auto;
+}
+
+.buttonGroup {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 60%;    
+}
+/*
+.panel {
+    margin-right: 5px;
+    margin-left: 5px; 
+}
+.panel-top {
+    margin:10px;
+}
+*/
+.box {
+    position: relative;
+    width: 95%;
+    height: auto;
+    margin:2.5%;
+    box-shadow: 3px 3px 3px rgba(0,0,0,0.4); 
+
+}
+
+.box-top {
+    position: relative;
+    width: 97.5%;
+    margin:1.25%;
+    height: auto;
+    box-shadow: 3px 3px 3px rgba(0,0,0,0.4); 
+}
+.ratio-1_1:before {
+    content: "";
+    display: block;
+    padding-top: 100%; /* 1:1 */
+
+}
+.ratio-1_2:before {
+    content: "";
+    display: block;
+    padding-top: 50%; /* 1:1 */
+
+}
+
+.inner {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    
+}
+
+.icon-marge {
+	margin: 30%;
+}
+
+.icon-marge-top {
+    margin-left: 37%;
+    margin-top: 10%;
+}
+
+.panel-label {
+    position: absolute;
+    font-size: 20px;
+    right: 5px;
+    bottom: 5px;
+    color: white;
+    font-family: 'roboto';
+}
+
+a{
+    display:block;
+	width:100%;
+	height:100%;
+	position:absolute;
+	left:0;
+	top:0;
+}
+
+.detail-button {
+    box-shadow: 3px 3px 3px rgba(0,0,0,0.4);
+}
+
+.my-container {
+    padding:10px;
+    display:none;
+}
+
+.img-wrapper{
+    position: relative;
+    width: 100%;
+}
+
+#myCanvas{
+    width:100%;
+    height:500px;
+    position: absolute;
+}
+
+.imageStock{
+}
+
+
+
+
+.result{
+    width: 100%;
+    height:100px;
+    position: absolute;
+    bottom: 0px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 10px;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    display:none;
+}
+
+.loading-text {
+    position: absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    margin:auto;
+}
+
+/* ↓↓↓ローディングのスタイル↓↓↓ */
+.loader
+{
+    position: absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    margin:auto;
+	width: 100px; /*ローディングアイコンの横サイズ*/
+	height: 100px; /*ローディングアイコンの縦サイズ*/
+	border-radius: 100px;  /*CSS3で円を書く*/
+	border: 20px solid #17cddd;  /*円に枠をつける*/
+	border-right-color: transparent; /*円の右にC状の空きをつける*/
+	
+	-webkit-animation: spin 1s infinite linear; /*回転のアニメーションをつける*/
+	-moz-animation: spin 1s infinite linear;
+}
+ /*キーフレームのアニメーションをつける*/
+@-webkit-keyframes spin
+{
+	0% { -webkit-transform: rotate(0deg); opacity: 0.4; }
+	50%  { -webkit-transform: rotate(180deg); opacity: 1; }
+	100%   { -webkit-transform: rotate(360deg); opacity: 0.4; }
+}
+
+@-moz-keyframes spin
+{
+	0% { -moz-transform: rotate(0deg); opacity: 0.4; }
+	50%  { -moz-transform: rotate(180deg); opacity: 1; }
+	100%   { -moz-transform: rotate(360deg); opacity: 0.4; }
+}
+
+/* ↑↑↑ローディングのスタイル↑↑↑ */
+
+.img-wrapper-Detail{
+    position: relative;
+    width: 100%;
+}
+
+.imageStockDetail{
+    
+    width:100%;
+    height:200px;
+    overflow: hidden
+    
+}
+
+
+.result-detail-title{
+    width: 100%;
+    height:120px;
+    /*
+    position: absolute;
+    */
+    position: relative;
+    bottom: 0px;
+    /*
+    background-color: rgba(0, 0, 0, 0.5);
+    */
+    background-color: #FFF176;
+    color: black;
+    padding:30px 30px 30px 20px;
+    
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    /*display:none;*/
+}
+
+.add-button{
+    position: absolute;
+    top: -30px;
+    right:20px;
+    padding:0px;
+}
+
+/*クチコミ箇所のスタイル*/
+.line{
+    line-height:20px;
+    height: 80px;
+    margin: 10px 20px 10px 60px;
+    font-size: 12px
+}
+
+.social-icon {
+    display: block;
+    float: left;
+    margin: 24px 4px 4px 4px;
+    padding: auto;
+    
+}
+.social-icon i {
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    border-radius: 50%;
+    background: #2196F3;
+    color: #FFFFFF;
+    line-height: 40px;
+    text-align: center;
+}
